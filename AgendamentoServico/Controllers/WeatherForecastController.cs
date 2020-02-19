@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AgendamentoServico.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -24,16 +25,18 @@ namespace AgendamentoServico.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<WeatherForecast> Get()
+        public IEnumerable<Cliente> Get()
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            var cliente = new Cliente { Cpf = 12345678901, Email = "naldin.naldo.com.br", Nome = "Naldim", Telefone = 31999999999 };
+
+            using (var db = new AgendamentoDBContext())
             {
-                Date = DateTime.Now.AddDays(index),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            })
-            .ToArray();
+                db.Cliente.Add(cliente);
+                db.SaveChanges();
+            }
+
+            var rng = new Random();
+            return Enumerable.Range(1, 5).Select(index => cliente).ToArray();
         }
     }
 }
