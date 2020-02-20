@@ -36,7 +36,7 @@ namespace AgendamentoServico.Controllers
             }
 
             var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => cliente).ToArray();
+            return Enumerable.Range(1,1).Select(index => cliente).ToArray();
         }
     }
 }
