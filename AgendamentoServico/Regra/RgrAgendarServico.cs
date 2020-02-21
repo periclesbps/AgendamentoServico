@@ -31,26 +31,9 @@ namespace AgendamentoServico.Regra
                     return retorno;
                 }
 
-                var os = new OrdemServico
-                {
-                    Idcliente = cliente.Id,
-                    Iditem = agendar.TipoServico.IdItem,
-                    Tipo = agendar.TipoServico.Tipo,
-                    Valor = agendar.TipoServico.Valor,
-                    Idtecnico = tecnico.Id
-                };
+                var agendamento = this.CadastrarAgendamento(agendar, cliente, tecnico);
 
-                using (var scope = new TransactionScope())
-                {
-                    db.OrdemServico.Add(os);
-                    db.SaveChanges();
-                    db.Agendamento.Add(new Agendamento { Data = agendar.Data, IdordemServico = os.Id });
-                    db.SaveChanges();
-                    
-                    scope.Complete();
-                }
-
-                retorno.Message = string.Format("Pedido número {0} cadastrado com sucesso para o dia {1}", os.Id, agendar.Data.ToString("dd/MM/yy hh:mm"));
+                retorno.Message = string.Format("Pedido número {0} cadastrado com sucesso para o dia {1}.", agendamento.IdordemServico, string.Concat(agendamento.Data.ToString("dd/MM/yy"), " às ", agendamento.Data.ToString("hh:mm"), " hrs"));
                 retorno.IsSuccess = true;
             }
             catch (Exception ex)
@@ -59,6 +42,26 @@ namespace AgendamentoServico.Regra
             }
 
             return retorno;
+        }
+
+        private Agendamento CadastrarAgendamento(vmAgendar agendar, Cliente cliente, Tecnico tecnico)
+        {
+            var agendamento = new Agendamento
+            {
+                Data = agendar.Data,
+                IdordemServicoNavigation = new OrdemServico
+                {
+                    Idcliente = cliente.Id,
+                    Iditem = agendar.TipoServico.IdItem,
+                    Tipo = agendar.TipoServico.Tipo,
+                    Valor = agendar.TipoServico.Valor,
+                    Idtecnico = tecnico.Id
+                }
+            };
+
+            db.Agendamento.Add(agendamento);
+            db.SaveChanges();
+            return agendamento;
         }
 
         private ReturnBase ValidarDadosInputados(vmAgendar agendar, ref Cliente cliente, ref Tecnico tecnico)
